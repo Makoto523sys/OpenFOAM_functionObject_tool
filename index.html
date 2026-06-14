@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OpenFOAM Sampling Functions Builder</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">controlDict functions</p>
+          <h1>OpenFOAM Sampling Functions Builder</h1>
+        </div>
+        <div class="status-strip" aria-live="polite">
+          <span id="sampleCount">0 samples</span>
+          <span id="fieldCount">2 fields</span>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <section class="config-pane" aria-label="sampling settings">
+          <section class="panel">
+            <div class="panel-heading">
+              <p class="eyebrow">common</p>
+              <h2>共通設定</h2>
+            </div>
+            <div class="settings-grid">
+              <fieldset class="field-group">
+                <legend>fields</legend>
+                <label><input type="checkbox" data-field-token="U" checked /> U</label>
+                <label><input type="checkbox" data-field-token="p" checked /> p</label>
+                <label><input type="checkbox" data-field-token="k" /> k</label>
+                <label><input type="checkbox" data-field-token="epsilon" /> epsilon</label>
+                <label><input type="checkbox" data-field-token="omega" /> omega</label>
+                <label><input type="checkbox" data-field-token="nut" /> nut</label>
+              </fieldset>
+              <label class="field wide">
+                <span>追加fields</span>
+                <input id="customFields" type="text" placeholder="T, alpha.water" />
+              </label>
+              <label class="field">
+                <span>writeControl</span>
+                <select id="writeControl">
+                  <option value="timeStep">timeStep</option>
+                  <option value="writeTime">writeTime</option>
+                  <option value="runTime">runTime</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>writeInterval</span>
+                <input id="writeInterval" type="number" min="0.000001" step="1" value="1" />
+              </label>
+              <label class="field">
+                <span>interpolationScheme</span>
+                <select id="interpolationScheme">
+                  <option value="cellPoint">cellPoint</option>
+                  <option value="cell">cell</option>
+                  <option value="cellPointFace">cellPointFace</option>
+                  <option value="pointMVC">pointMVC</option>
+                </select>
+              </label>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-heading">
+              <p class="eyebrow">probes</p>
+              <h2>点サンプル</h2>
+              <button id="addPoint" class="secondary-button" type="button">＋ 点</button>
+            </div>
+            <div id="pointRows" class="sample-list"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-heading">
+              <p class="eyebrow">sets</p>
+              <h2>線サンプル</h2>
+              <button id="addLine" class="secondary-button" type="button">＋ 線</button>
+            </div>
+            <div id="lineRows" class="sample-list"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-heading">
+              <p class="eyebrow">surfaces</p>
+              <h2>patch面サンプル</h2>
+              <button id="addPatch" class="secondary-button" type="button">＋ patch</button>
+            </div>
+            <div id="patchRows" class="sample-list"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">forces</p>
+                <h2>forces / forceCoeffs</h2>
+              </div>
+            </div>
+            <div class="object-list">
+              <article class="object-card">
+                <label class="object-title">
+                  <input data-object="forces" data-fo-prop="enabled" type="checkbox" />
+                  <span>forces</span>
+                </label>
+                <div class="object-grid">
+                  <label class="field">
+                    <span>名前</span>
+                    <input data-object="forces" data-fo-prop="name" type="text" />
+                  </label>
+                  <label class="field wide">
+                    <span>patches</span>
+                    <input data-object="forces" data-fo-prop="patchNames" type="text" placeholder="walls inlet" />
+                  </label>
+                  <label class="field">
+                    <span>rhoInf</span>
+                    <input data-object="forces" data-fo-prop="rhoInf" type="number" min="0" step="any" />
+                  </label>
+                  <label class="field vector-field">
+                    <span>CofR x</span>
+                    <input data-object="forces" data-fo-prop="CofR.0" type="number" step="any" />
+                  </label>
+                  <label class="field vector-field">
+                    <span>CofR y</span>
+                    <input data-object="forces" data-fo-prop="CofR.1" type="number" step="any" />
+                  </label>
+                  <label class="field vector-field">
+                    <span>CofR z</span>
+                    <input data-object="forces" data-fo-prop="CofR.2" type="number" step="any" />
+                  </label>
+                  <label class="check-field compact-check">
+                    <input data-object="forces" data-fo-prop="log" type="checkbox" />
+                    log
+                  </label>
+                </div>
+              </article>
+
+              <article class="object-card">
+                <label class="object-title">
+                  <input data-object="forceCoeffs" data-fo-prop="enabled" type="checkbox" />
+                  <span>forceCoeffs</span>
+                </label>
+                <div class="object-grid coeff-grid">
+                  <label class="field">
+                    <span>名前</span>
+                    <input data-object="forceCoeffs" data-fo-prop="name" type="text" />
+                  </label>
+                  <label class="field wide">
+                    <span>patches</span>
+                    <input data-object="forceCoeffs" data-fo-prop="patchNames" type="text" placeholder="walls inlet" />
+                  </label>
+                  <label class="field">
+                    <span>rhoInf</span>
+                    <input data-object="forceCoeffs" data-fo-prop="rhoInf" type="number" min="0" step="any" />
+                  </label>
+                  <label class="field">
+                    <span>magUInf</span>
+                    <input data-object="forceCoeffs" data-fo-prop="magUInf" type="number" min="0" step="any" />
+                  </label>
+                  <label class="field">
+                    <span>lRef</span>
+                    <input data-object="forceCoeffs" data-fo-prop="lRef" type="number" min="0" step="any" />
+                  </label>
+                  <label class="field">
+                    <span>Aref</span>
+                    <input data-object="forceCoeffs" data-fo-prop="Aref" type="number" min="0" step="any" />
+                  </label>
+                  <label class="field vector-field">
+                    <span>liftDir x</span>
+                    <input data-object="forceCoeffs" data-fo-prop="liftDir.0" type="number" step="any" />
+                  </label>
+                  <label class="field vector-field">
+                    <span>liftDir y</span>
+                    <input data-object="forceCoeffs" data-fo-prop="liftDir.1" type="number" step="any" />
+                  </label>
+                  <label class="field vector-field">
+                    <span>liftDir z</span>
+                    <input data-object="forceCoeffs" data-fo-prop="liftDir.2" type="number" step="any" />
+                  </label>
+                  <label class="field vector-field">
+                    <span>dragDir x</span>
+                    <input data-object="forceCoeffs" data-fo-prop="dragDir.0" type="number" step="any" />
+                  </label>
+                  <label class="field vector-field">
+                    <span>dragDir y</span>
+                    <input data-object="forceCoeffs" data-fo-prop="dragDir.1" type="number" step="any" />
+                  </label>
+                  <label class="field vector-field">
+                    <span>dragDir z</span>
+                    <input data-object="forceCoeffs" data-fo-prop="dragDir.2" type="number" step="any" />
+                  </label>
+                  <label class="field vector-field">
+                    <span>pitchAxis x</span>
+                    <input data-object="forceCoeffs" data-fo-prop="pitchAxis.0" type="number" step="any" />
+                  </label>
+                  <label class="field vector-field">
+                    <span>pitchAxis y</span>
+                    <input data-object="forceCoeffs" data-fo-prop="pitchAxis.1" type="number" step="any" />
+                  </label>
+                  <label class="field vector-field">
+                    <span>pitchAxis z</span>
+                    <input data-object="forceCoeffs" data-fo-prop="pitchAxis.2" type="number" step="any" />
+                  </label>
+                  <label class="field vector-field">
+                    <span>CofR x</span>
+                    <input data-object="forceCoeffs" data-fo-prop="CofR.0" type="number" step="any" />
+                  </label>
+                  <label class="field vector-field">
+                    <span>CofR y</span>
+                    <input data-object="forceCoeffs" data-fo-prop="CofR.1" type="number" step="any" />
+                  </label>
+                  <label class="field vector-field">
+                    <span>CofR z</span>
+                    <input data-object="forceCoeffs" data-fo-prop="CofR.2" type="number" step="any" />
+                  </label>
+                  <label class="check-field compact-check">
+                    <input data-object="forceCoeffs" data-fo-prop="log" type="checkbox" />
+                    log
+                  </label>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">wall fields</p>
+                <h2>wallShearStress / wallHeatFlux / yPlus</h2>
+              </div>
+            </div>
+            <div class="object-list">
+              <article class="object-card">
+                <label class="object-title">
+                  <input data-object="wallShearStress" data-fo-prop="enabled" type="checkbox" />
+                  <span>wallShearStress</span>
+                </label>
+                <div class="object-grid">
+                  <label class="field">
+                    <span>名前</span>
+                    <input data-object="wallShearStress" data-fo-prop="name" type="text" />
+                  </label>
+                  <label class="field wide">
+                    <span>patches</span>
+                    <input data-object="wallShearStress" data-fo-prop="patchNames" type="text" placeholder="空欄なら全wall patch" />
+                  </label>
+                  <label class="check-field compact-check">
+                    <input data-object="wallShearStress" data-fo-prop="writeFields" type="checkbox" />
+                    writeFields
+                  </label>
+                </div>
+              </article>
+
+              <article class="object-card">
+                <label class="object-title">
+                  <input data-object="wallHeatFlux" data-fo-prop="enabled" type="checkbox" />
+                  <span>wallHeatFlux</span>
+                </label>
+                <div class="object-grid">
+                  <label class="field">
+                    <span>名前</span>
+                    <input data-object="wallHeatFlux" data-fo-prop="name" type="text" />
+                  </label>
+                  <label class="field wide">
+                    <span>patches</span>
+                    <input data-object="wallHeatFlux" data-fo-prop="patchNames" type="text" placeholder="空欄なら全wall patch" />
+                  </label>
+                  <label class="field">
+                    <span>qr</span>
+                    <input data-object="wallHeatFlux" data-fo-prop="qr" type="text" />
+                  </label>
+                </div>
+              </article>
+
+              <article class="object-card">
+                <label class="object-title">
+                  <input data-object="yPlus" data-fo-prop="enabled" type="checkbox" />
+                  <span>yPlus</span>
+                </label>
+                <div class="object-grid">
+                  <label class="field">
+                    <span>名前</span>
+                    <input data-object="yPlus" data-fo-prop="name" type="text" />
+                  </label>
+                  <label class="check-field compact-check">
+                    <input data-object="yPlus" data-fo-prop="useWallFunction" type="checkbox" />
+                    useWallFunction
+                  </label>
+                  <label class="check-field compact-check">
+                    <input data-object="yPlus" data-fo-prop="writeFields" type="checkbox" />
+                    writeFields
+                  </label>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">patch values</p>
+                <h2>surfaceFieldValue / flowRatePatch / fieldMinMax</h2>
+              </div>
+            </div>
+            <div class="object-list">
+              <article class="object-card">
+                <label class="object-title">
+                  <input data-object="surfaceFieldValue" data-fo-prop="enabled" type="checkbox" />
+                  <span>surfaceFieldValue</span>
+                </label>
+                <div class="object-grid">
+                  <label class="field">
+                    <span>名前</span>
+                    <input data-object="surfaceFieldValue" data-fo-prop="name" type="text" />
+                  </label>
+                  <label class="field">
+                    <span>patch</span>
+                    <input data-object="surfaceFieldValue" data-fo-prop="patchName" type="text" />
+                  </label>
+                  <label class="field wide">
+                    <span>fields</span>
+                    <input data-object="surfaceFieldValue" data-fo-prop="fields" type="text" placeholder="U p T" />
+                  </label>
+                  <label class="field">
+                    <span>operation</span>
+                    <select data-object="surfaceFieldValue" data-fo-prop="operation">
+                      <option value="areaAverage">areaAverage</option>
+                      <option value="areaIntegrate">areaIntegrate</option>
+                      <option value="areaNormalAverage">areaNormalAverage</option>
+                      <option value="areaNormalIntegrate">areaNormalIntegrate</option>
+                      <option value="average">average</option>
+                      <option value="sum">sum</option>
+                      <option value="sumMag">sumMag</option>
+                      <option value="min">min</option>
+                      <option value="max">max</option>
+                      <option value="uniformity">uniformity</option>
+                    </select>
+                  </label>
+                  <label class="field">
+                    <span>surfaceFormat</span>
+                    <select data-object="surfaceFieldValue" data-fo-prop="surfaceFormat">
+                      <option value="none">none</option>
+                      <option value="raw">raw</option>
+                      <option value="vtk">vtk</option>
+                    </select>
+                  </label>
+                  <label class="check-field compact-check">
+                    <input data-object="surfaceFieldValue" data-fo-prop="writeArea" type="checkbox" />
+                    writeArea
+                  </label>
+                  <label class="check-field compact-check">
+                    <input data-object="surfaceFieldValue" data-fo-prop="writeFields" type="checkbox" />
+                    writeFields
+                  </label>
+                  <label class="check-field compact-check">
+                    <input data-object="surfaceFieldValue" data-fo-prop="log" type="checkbox" />
+                    log
+                  </label>
+                </div>
+              </article>
+
+              <article class="object-card">
+                <label class="object-title">
+                  <input data-object="flowRatePatch" data-fo-prop="enabled" type="checkbox" />
+                  <span>flowRatePatch</span>
+                </label>
+                <div class="object-grid">
+                  <label class="field">
+                    <span>名前</span>
+                    <input data-object="flowRatePatch" data-fo-prop="name" type="text" />
+                  </label>
+                  <label class="field">
+                    <span>patch</span>
+                    <input data-object="flowRatePatch" data-fo-prop="patchName" type="text" />
+                  </label>
+                  <label class="field">
+                    <span>flux field</span>
+                    <input data-object="flowRatePatch" data-fo-prop="phi" type="text" />
+                  </label>
+                  <label class="check-field compact-check">
+                    <input data-object="flowRatePatch" data-fo-prop="log" type="checkbox" />
+                    log
+                  </label>
+                </div>
+              </article>
+
+              <article class="object-card">
+                <label class="object-title">
+                  <input data-object="fieldMinMax" data-fo-prop="enabled" type="checkbox" />
+                  <span>fieldMinMax</span>
+                </label>
+                <div class="object-grid">
+                  <label class="field">
+                    <span>名前</span>
+                    <input data-object="fieldMinMax" data-fo-prop="name" type="text" />
+                  </label>
+                  <label class="field wide">
+                    <span>fields</span>
+                    <input data-object="fieldMinMax" data-fo-prop="fields" type="text" placeholder="U p T" />
+                  </label>
+                  <label class="field">
+                    <span>mode</span>
+                    <select data-object="fieldMinMax" data-fo-prop="mode">
+                      <option value="magnitude">magnitude</option>
+                      <option value="component">component</option>
+                    </select>
+                  </label>
+                  <label class="check-field compact-check">
+                    <input data-object="fieldMinMax" data-fo-prop="location" type="checkbox" />
+                    location
+                  </label>
+                  <label class="check-field compact-check">
+                    <input data-object="fieldMinMax" data-fo-prop="log" type="checkbox" />
+                    log
+                  </label>
+                </div>
+              </article>
+            </div>
+          </section>
+        </section>
+
+        <aside class="output-pane" aria-label="generated functions block">
+          <div class="output-header">
+            <div>
+              <p class="eyebrow">generated text</p>
+              <h2>functionsブロック</h2>
+            </div>
+            <div class="output-actions">
+              <button id="copyOutput" class="primary-button" type="button">コピー</button>
+              <button id="downloadOutput" class="secondary-button" type="button">保存</button>
+            </div>
+          </div>
+          <div id="validationMessages" class="validation" aria-live="polite"></div>
+          <pre id="output" class="code-preview"></pre>
+        </aside>
+      </main>
+    </div>
+
+    <template id="pointTemplate">
+      <article class="sample-card" data-kind="point">
+        <div class="card-head">
+          <strong>点</strong>
+          <button class="icon-button" type="button" data-action="remove" aria-label="点を削除">×</button>
+        </div>
+        <div class="sample-grid">
+          <label class="field">
+            <span>名前</span>
+            <input data-prop="name" type="text" />
+          </label>
+          <label class="field vector-field">
+            <span>x</span>
+            <input data-prop="location.0" type="number" step="any" />
+          </label>
+          <label class="field vector-field">
+            <span>y</span>
+            <input data-prop="location.1" type="number" step="any" />
+          </label>
+          <label class="field vector-field">
+            <span>z</span>
+            <input data-prop="location.2" type="number" step="any" />
+          </label>
+        </div>
+      </article>
+    </template>
+
+    <template id="lineTemplate">
+      <article class="sample-card" data-kind="line">
+        <div class="card-head">
+          <strong>線</strong>
+          <button class="icon-button" type="button" data-action="remove" aria-label="線を削除">×</button>
+        </div>
+        <div class="sample-grid line-grid">
+          <label class="field">
+            <span>名前</span>
+            <input data-prop="name" type="text" />
+          </label>
+          <label class="field vector-field">
+            <span>start x</span>
+            <input data-prop="start.0" type="number" step="any" />
+          </label>
+          <label class="field vector-field">
+            <span>start y</span>
+            <input data-prop="start.1" type="number" step="any" />
+          </label>
+          <label class="field vector-field">
+            <span>start z</span>
+            <input data-prop="start.2" type="number" step="any" />
+          </label>
+          <label class="field spacer-field">
+            <span>nPoints</span>
+            <input data-prop="nPoints" type="number" min="2" step="1" />
+          </label>
+          <label class="field vector-field">
+            <span>end x</span>
+            <input data-prop="end.0" type="number" step="any" />
+          </label>
+          <label class="field vector-field">
+            <span>end y</span>
+            <input data-prop="end.1" type="number" step="any" />
+          </label>
+          <label class="field vector-field">
+            <span>end z</span>
+            <input data-prop="end.2" type="number" step="any" />
+          </label>
+        </div>
+      </article>
+    </template>
+
+    <template id="patchTemplate">
+      <article class="sample-card" data-kind="patch">
+        <div class="card-head">
+          <strong>patch面</strong>
+          <button class="icon-button" type="button" data-action="remove" aria-label="patch面を削除">×</button>
+        </div>
+        <div class="sample-grid patch-grid">
+          <label class="field">
+            <span>名前</span>
+            <input data-prop="name" type="text" />
+          </label>
+          <label class="field wide">
+            <span>patch名</span>
+            <input data-prop="patchNames" type="text" placeholder="walls inlet" />
+          </label>
+        </div>
+      </article>
+    </template>
+
+    <script src="./src/generator.js"></script>
+    <script src="./src/app.js"></script>
+  </body>
+</html>
