@@ -51,14 +51,6 @@ Sampling Functions Builderの基本的な流れ:
 
 主に OpenFOAM.com v2412 系で確認しています。生成される構文は `foamDictionary -entry functions` で読み取り確認済みです。
 
-代表例:
-
-```bash
-wsl
-openfoam2412
-foamDictionary -entry functions system/controlDict
-```
-
 ## Notes
 
 - `flowRatePatch` はOpenFOAM標準辞書に合わせ、内部的には `surfaceFieldValue` の `fields (phi); operation sum;` として生成します。
@@ -68,14 +60,6 @@ foamDictionary -entry functions system/controlDict
 ## Project Structure
 
 ```text
-.
-├── index.html
-├── styles.css
-├── src/
-│   ├── app.js
-│   ├── zip.js
-│   └── generators/
-└── sampling-functions/
     ├── index.html
     ├── styles.css
     └── src/
