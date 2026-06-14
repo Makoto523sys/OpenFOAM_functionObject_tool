@@ -66,7 +66,3 @@ Sampling Functions Builderの基本的な流れ:
         ├── app.js
         └── generator.js
 ```
-
-## License
-
-未設定です。必要に応じてライセンスファイルを追加してください。
